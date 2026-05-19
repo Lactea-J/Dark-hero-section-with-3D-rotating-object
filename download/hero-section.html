@@ -1,518 +1,576 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Immersive Hero Section</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="refresh" content="0; url=./download/hero-section.html" />
+    <title>Immersive Hero Section</title>
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+            },
           },
         },
-      },
-    };
-  </script>
+      };
+    </script>
 
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Three.js Import Map -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
-    }
-  }
-  </script>
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+        }
+      }
+    </script>
 
-  <style>
-    /* ───── Global Reset ───── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+      /* ───── Global Reset ───── */
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      background: #000;
-      color: #fff;
-      font-family: 'Inter', system-ui, sans-serif;
-    }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        color: #fff;
+        font-family: "Inter", system-ui, sans-serif;
+      }
 
-    /* ───── 3D Canvas ───── */
-    #three-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      width: 100%;
-      height: 100%;
-    }
+      /* ───── 3D Canvas ───── */
+      #three-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+      }
 
-    /* ───── Overlay Layer ───── */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      pointer-events: none;
-    }
-    .overlay > * { pointer-events: auto; }
+      /* ───── Overlay Layer ───── */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        pointer-events: none;
+      }
+      .overlay > * {
+        pointer-events: auto;
+      }
 
-    /* ───── Glassmorphism Utility ───── */
-    .glass {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-strong {
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
+      /* ───── Glassmorphism Utility ───── */
+      .glass {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .glass-strong {
+        background: rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
 
-    /* ───── Navbar ───── */
-    .navbar {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2.5rem;
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .navbar .logo {
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #fff 0%, #aaa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .nav-links {
-      display: flex;
-      gap: 0.5rem;
-      list-style: none;
-    }
-    .nav-links a {
-      padding: 0.5rem 1.25rem;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .nav-links a:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
+      /* ───── Navbar ───── */
+      .navbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 2.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .navbar .logo {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .nav-links {
+        display: flex;
+        gap: 0.5rem;
+        list-style: none;
+      }
+      .nav-links a {
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .nav-links a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
 
-    /* ───── Hero Center Content ───── */
-    .hero-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      z-index: 20;
-      pointer-events: none;
-      padding: 0 1.5rem;
-    }
-    .hero-center > * { pointer-events: auto; }
+      /* ───── Hero Center Content ───── */
+      .hero-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 20;
+        pointer-events: none;
+        padding: 0 1.5rem;
+      }
+      .hero-center > * {
+        pointer-events: auto;
+      }
 
-    .headline {
-      font-size: clamp(3rem, 10vw, 8rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 0.95;
-      text-transform: uppercase;
-      background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1rem;
-      text-shadow: none;
-      position: relative;
-    }
-    .headline::after {
-      content: attr(data-text);
-      position: absolute;
-      left: 0; top: 0;
-      z-index: -1;
-      filter: blur(30px);
-      opacity: 0.5;
-      background: linear-gradient(180deg, #ffffff 0%, #666666 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+      .headline {
+        font-size: clamp(3rem, 10vw, 8rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+        text-transform: uppercase;
+        background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        text-shadow: none;
+        position: relative;
+      }
+      .headline::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: -1;
+        filter: blur(30px);
+        opacity: 0.5;
+        background: linear-gradient(180deg, #ffffff 0%, #666666 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
 
-    .sub-headline {
-      font-size: clamp(1rem, 2.5vw, 1.35rem);
-      font-weight: 400;
-      color: rgba(255, 255, 255, 0.55);
-      max-width: 600px;
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
-    }
+      .sub-headline {
+        font-size: clamp(1rem, 2.5vw, 1.35rem);
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.55);
+        max-width: 600px;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+      }
 
-    /* ───── Glass Feature Cards Row ───── */
-    .feature-cards {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .feature-card {
-      padding: 1.25rem 2rem;
-      border-radius: 1rem;
-      min-width: 160px;
-      text-align: center;
-      transition: all 0.35s ease;
-      cursor: default;
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .feature-card:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-4px);
-    }
-    .feature-card .icon {
-      font-size: 1.75rem;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-    .feature-card .label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.9);
-      letter-spacing: 0.02em;
-    }
-    .feature-card .desc {
-      font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.4);
-      margin-top: 0.35rem;
-    }
+      /* ───── Glass Feature Cards Row ───── */
+      .feature-cards {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .feature-card {
+        padding: 1.25rem 2rem;
+        border-radius: 1rem;
+        min-width: 160px;
+        text-align: center;
+        transition: all 0.35s ease;
+        cursor: default;
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .feature-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-4px);
+      }
+      .feature-card .icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+      .feature-card .label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        letter-spacing: 0.02em;
+      }
+      .feature-card .desc {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 0.35rem;
+      }
 
-    /* ───── CTA Button ───── */
-    .cta-btn {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 1rem 2.75rem;
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      color: #000;
-      background: #fff;
-      border: none;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.35s ease;
-      overflow: hidden;
-      z-index: 1;
-    }
-    .cta-btn::before {
-      content: '';
-      position: absolute;
-      inset: -3px;
-      border-radius: 9999px;
-      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1);
-      background-size: 300% 300%;
-      z-index: -2;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      animation: glow-shift 4s ease infinite;
-    }
-    .cta-btn::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
-      border-radius: 9999px;
-      background: #fff;
-      z-index: -1;
-      transition: background 0.35s ease;
-    }
-    .cta-btn:hover::before {
-      opacity: 1;
-    }
-    .cta-btn:hover::after {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-    }
-    .cta-btn:hover {
-      color: #fff;
-      transform: scale(1.06);
-      box-shadow:
-        0 0 40px rgba(99, 102, 241, 0.4),
-        0 0 80px rgba(168, 85, 247, 0.25),
-        0 0 120px rgba(236, 72, 153, 0.15);
-    }
-    .cta-btn .arrow {
-      transition: transform 0.3s ease;
-    }
-    .cta-btn:hover .arrow {
-      transform: translateX(4px);
-    }
+      /* ───── CTA Button ───── */
+      .cta-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 1rem 2.75rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #000;
+        background: #fff;
+        border: none;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        overflow: hidden;
+        z-index: 1;
+      }
+      .cta-btn::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1);
+        background-size: 300% 300%;
+        z-index: -2;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        animation: glow-shift 4s ease infinite;
+      }
+      .cta-btn::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        border-radius: 9999px;
+        background: #fff;
+        z-index: -1;
+        transition: background 0.35s ease;
+      }
+      .cta-btn:hover::before {
+        opacity: 1;
+      }
+      .cta-btn:hover::after {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+      }
+      .cta-btn:hover {
+        color: #fff;
+        transform: scale(1.06);
+        box-shadow:
+          0 0 40px rgba(99, 102, 241, 0.4),
+          0 0 80px rgba(168, 85, 247, 0.25),
+          0 0 120px rgba(236, 72, 153, 0.15);
+      }
+      .cta-btn .arrow {
+        transition: transform 0.3s ease;
+      }
+      .cta-btn:hover .arrow {
+        transform: translateX(4px);
+      }
 
-    @keyframes glow-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
+      @keyframes glow-shift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
 
-    /* ───── Bottom Gradient Fade ───── */
-    .bottom-fade {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 200px;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-      z-index: 15;
-      pointer-events: none;
-    }
+      /* ───── Bottom Gradient Fade ───── */
+      .bottom-fade {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 200px;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.8) 0%,
+          transparent 100%
+        );
+        z-index: 15;
+        pointer-events: none;
+      }
 
-    /* ───── Ambient Particles (CSS) ───── */
-    .particle {
-      position: fixed;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      pointer-events: none;
-      z-index: 5;
-      animation: float-up linear infinite;
-    }
-    @keyframes float-up {
-      0% { transform: translateY(100vh) scale(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-    }
+      /* ───── Ambient Particles (CSS) ───── */
+      .particle {
+        position: fixed;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        pointer-events: none;
+        z-index: 5;
+        animation: float-up linear infinite;
+      }
+      @keyframes float-up {
+        0% {
+          transform: translateY(100vh) scale(0);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-10vh) scale(1);
+          opacity: 0;
+        }
+      }
 
-    /* ───── Responsive ───── */
-    @media (max-width: 640px) {
-      .navbar { padding: 1rem 1.25rem; }
-      .feature-cards { gap: 0.65rem; }
-      .feature-card { padding: 1rem 1.25rem; min-width: 130px; }
-    }
-  </style>
-</head>
+      /* ───── Responsive ───── */
+      @media (max-width: 640px) {
+        .navbar {
+          padding: 1rem 1.25rem;
+        }
+        .feature-cards {
+          gap: 0.65rem;
+        }
+        .feature-card {
+          padding: 1rem 1.25rem;
+          min-width: 130px;
+        }
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
+    <!-- ═══════ Three.js Canvas ═══════ -->
+    <canvas id="three-canvas"></canvas>
 
-  <!-- ═══════ Three.js Canvas ═══════ -->
-  <canvas id="three-canvas"></canvas>
+    <!-- ═══════ Ambient Particles ═══════ -->
+    <div id="particles"></div>
 
-  <!-- ═══════ Ambient Particles ═══════ -->
-  <div id="particles"></div>
+    <!-- ═══════ UI Overlay ═══════ -->
+    <div class="overlay">
+      <!-- ─── Navbar ─── -->
+      <nav class="navbar">
+        <div class="logo">CHROMA</div>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#docs">Docs</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
 
-  <!-- ═══════ UI Overlay ═══════ -->
-  <div class="overlay">
+      <!-- ─── Hero Center ─── -->
+      <div class="hero-center">
+        <h1 class="headline" data-text="BUILD THE FUTURE">BUILD THE FUTURE</h1>
+        <p class="sub-headline">
+          다음 세대의 크리에이티브 경험을 시작하세요. 하이퍼-글로시 크롬 메탈과
+          유리 같은 UI가 만나는 몰입형 웹의 세계로.
+        </p>
 
-    <!-- ─── Navbar ─── -->
-    <nav class="navbar">
-      <div class="logo">CHROMA</div>
-      <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-        <li><a href="#docs">Docs</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-
-    <!-- ─── Hero Center ─── -->
-    <div class="hero-center">
-      <h1 class="headline" data-text="BUILD THE FUTURE">BUILD THE FUTURE</h1>
-      <p class="sub-headline">
-        다음 세대의 크리에이티브 경험을 시작하세요. 하이퍼-글로시 크롬 메탈과 유리 같은 UI가 만나는 몰입형 웹의 세계로.
-      </p>
-
-      <!-- Feature Glass Cards -->
-      <div class="feature-cards">
-        <div class="feature-card">
-          <span class="icon">&#9889;</span>
-          <span class="label">Features</span>
-          <span class="desc">강력한 기능 탐색</span>
+        <!-- Feature Glass Cards -->
+        <div class="feature-cards">
+          <div class="feature-card">
+            <span class="icon">&#9889;</span>
+            <span class="label">Features</span>
+            <span class="desc">강력한 기능 탐색</span>
+          </div>
+          <div class="feature-card">
+            <span class="icon">&#128176;</span>
+            <span class="label">Pricing</span>
+            <span class="desc">합리적인 가격</span>
+          </div>
+          <div class="feature-card">
+            <span class="icon">&#128640;</span>
+            <span class="label">Deploy</span>
+            <span class="desc">원클릭 배포</span>
+          </div>
+          <div class="feature-card">
+            <span class="icon">&#128274;</span>
+            <span class="label">Security</span>
+            <span class="desc">엔터프라이즈 보안</span>
+          </div>
         </div>
-        <div class="feature-card">
-          <span class="icon">&#128176;</span>
-          <span class="label">Pricing</span>
-          <span class="desc">합리적인 가격</span>
-        </div>
-        <div class="feature-card">
-          <span class="icon">&#128640;</span>
-          <span class="label">Deploy</span>
-          <span class="desc">원클릭 배포</span>
-        </div>
-        <div class="feature-card">
-          <span class="icon">&#128274;</span>
-          <span class="label">Security</span>
-          <span class="desc">엔터프라이즈 보안</span>
-        </div>
+
+        <!-- CTA Button -->
+        <button class="cta-btn" id="cta-btn">
+          Get Started
+          <span class="arrow">&rarr;</span>
+        </button>
       </div>
 
-      <!-- CTA Button -->
-      <button class="cta-btn" id="cta-btn">
-        Get Started
-        <span class="arrow">&rarr;</span>
-      </button>
+      <!-- ─── Bottom Fade ─── -->
+      <div class="bottom-fade"></div>
     </div>
 
-    <!-- ─── Bottom Fade ─── -->
-    <div class="bottom-fade"></div>
-  </div>
+    <!-- ═══════ Three.js Scene ═══════ -->
+    <script type="module">
+      import * as THREE from "three";
+      import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-  <!-- ═══════ Three.js Scene ═══════ -->
-  <script type="module">
-    import * as THREE from 'three';
-    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-
-    // ─── Renderer ───
-    const canvas = document.getElementById('three-canvas');
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.85;
-
-    // ─── Scene ───
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
-    // ─── Environment Map (for realistic chrome reflections) ───
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
-    const envTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environment = envTexture;
-
-    // ─── Camera ───
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 0, 6);
-
-    // ─── Torus Knot (Hyper-Glossy Chrome / Liquid Metal) ───
-    const geometry = new THREE.TorusKnotGeometry(1.2, 0.38, 256, 64, 2, 3);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xcccccc,
-      metalness: 1.0,
-      roughness: 0.05,
-      envMapIntensity: 1.8,
-    });
-    const torusKnot = new THREE.Mesh(geometry, material);
-    scene.add(torusKnot);
-
-    // ─── Subtle ambient lights for fill ───
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
-    scene.add(ambientLight);
-
-    const pointLight1 = new THREE.PointLight(0x6366f1, 2, 20);
-    pointLight1.position.set(4, 3, 4);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0xec4899, 1.5, 20);
-    pointLight2.position.set(-4, -2, 3);
-    scene.add(pointLight2);
-
-    // ─── Mouse Parallax ───
-    let mouseX = 0, mouseY = 0;
-    let targetX = 0, targetY = 0;
-    document.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    // ─── Animation Loop ───
-    const clock = new THREE.Clock();
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
-
-      // Slow rotation
-      torusKnot.rotation.x = elapsed * 0.15;
-      torusKnot.rotation.y = elapsed * 0.2;
-      torusKnot.rotation.z = elapsed * 0.08;
-
-      // Floating effect
-      torusKnot.position.y = Math.sin(elapsed * 0.6) * 0.2;
-
-      // Mouse parallax (smooth lerp)
-      targetX += (mouseX * 0.3 - targetX) * 0.05;
-      targetY += (-mouseY * 0.3 - targetY) * 0.05;
-      torusKnot.rotation.x += targetY * 0.15;
-      torusKnot.rotation.y += targetX * 0.15;
-
-      // Animate point lights for color shifting
-      pointLight1.position.x = Math.sin(elapsed * 0.5) * 5;
-      pointLight1.position.z = Math.cos(elapsed * 0.5) * 5;
-      pointLight2.position.x = Math.cos(elapsed * 0.4) * 5;
-      pointLight2.position.z = Math.sin(elapsed * 0.4) * 5;
-
-      renderer.render(scene, camera);
-    }
-
-    animate();
-
-    // ─── Resize Handler ───
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      // ─── Renderer ───
+      const canvas = document.getElementById("three-canvas");
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.85;
 
-  <!-- ═══════ Ambient Particles ═══════ -->
-  <script>
-    (function createParticles() {
-      const container = document.getElementById('particles');
-      const count = 30;
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.classList.add('particle');
-        const size = Math.random() * 3 + 1;
-        p.style.width = size + 'px';
-        p.style.height = size + 'px';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.animationDuration = (Math.random() * 12 + 8) + 's';
-        p.style.animationDelay = (Math.random() * 10) + 's';
-        p.style.opacity = Math.random() * 0.3 + 0.05;
-        container.appendChild(p);
+      // ─── Scene ───
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      // ─── Environment Map (for realistic chrome reflections) ───
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      pmremGenerator.compileEquirectangularShader();
+      const envTexture = pmremGenerator.fromScene(
+        new RoomEnvironment(),
+        0.04,
+      ).texture;
+      scene.environment = envTexture;
+
+      // ─── Camera ───
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100,
+      );
+      camera.position.set(0, 0, 6);
+
+      // ─── Torus Knot (Hyper-Glossy Chrome / Liquid Metal) ───
+      const geometry = new THREE.TorusKnotGeometry(1.2, 0.38, 256, 64, 2, 3);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xcccccc,
+        metalness: 1.0,
+        roughness: 0.05,
+        envMapIntensity: 1.8,
+      });
+      const torusKnot = new THREE.Mesh(geometry, material);
+      scene.add(torusKnot);
+
+      // ─── Subtle ambient lights for fill ───
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
+      scene.add(ambientLight);
+
+      const pointLight1 = new THREE.PointLight(0x6366f1, 2, 20);
+      pointLight1.position.set(4, 3, 4);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0xec4899, 1.5, 20);
+      pointLight2.position.set(-4, -2, 3);
+      scene.add(pointLight2);
+
+      // ─── Mouse Parallax ───
+      let mouseX = 0,
+        mouseY = 0;
+      let targetX = 0,
+        targetY = 0;
+      document.addEventListener("mousemove", (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      // ─── Animation Loop ───
+      const clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsed = clock.getElapsedTime();
+
+        // Slow rotation
+        torusKnot.rotation.x = elapsed * 0.15;
+        torusKnot.rotation.y = elapsed * 0.2;
+        torusKnot.rotation.z = elapsed * 0.08;
+
+        // Floating effect
+        torusKnot.position.y = Math.sin(elapsed * 0.6) * 0.2;
+
+        // Mouse parallax (smooth lerp)
+        targetX += (mouseX * 0.3 - targetX) * 0.05;
+        targetY += (-mouseY * 0.3 - targetY) * 0.05;
+        torusKnot.rotation.x += targetY * 0.15;
+        torusKnot.rotation.y += targetX * 0.15;
+
+        // Animate point lights for color shifting
+        pointLight1.position.x = Math.sin(elapsed * 0.5) * 5;
+        pointLight1.position.z = Math.cos(elapsed * 0.5) * 5;
+        pointLight2.position.x = Math.cos(elapsed * 0.4) * 5;
+        pointLight2.position.z = Math.sin(elapsed * 0.4) * 5;
+
+        renderer.render(scene, camera);
       }
-    })();
 
-    // ─── CTA Button Ripple Effect ───
-    document.getElementById('cta-btn').addEventListener('click', function (e) {
-      const btn = e.currentTarget;
-      const rect = btn.getBoundingClientRect();
-      const ripple = document.createElement('span');
-      const diameter = Math.max(rect.width, rect.height);
-      ripple.style.cssText = `
+      animate();
+
+      // ─── Resize Handler ───
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+
+    <!-- ═══════ Ambient Particles ═══════ -->
+    <script>
+      (function createParticles() {
+        const container = document.getElementById("particles");
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement("div");
+          p.classList.add("particle");
+          const size = Math.random() * 3 + 1;
+          p.style.width = size + "px";
+          p.style.height = size + "px";
+          p.style.left = Math.random() * 100 + "%";
+          p.style.animationDuration = Math.random() * 12 + 8 + "s";
+          p.style.animationDelay = Math.random() * 10 + "s";
+          p.style.opacity = Math.random() * 0.3 + 0.05;
+          container.appendChild(p);
+        }
+      })();
+
+      // ─── CTA Button Ripple Effect ───
+      document
+        .getElementById("cta-btn")
+        .addEventListener("click", function (e) {
+          const btn = e.currentTarget;
+          const rect = btn.getBoundingClientRect();
+          const ripple = document.createElement("span");
+          const diameter = Math.max(rect.width, rect.height);
+          ripple.style.cssText = `
         position:absolute; border-radius:50%;
         width:${diameter}px; height:${diameter}px;
         left:${e.clientX - rect.left - diameter / 2}px;
@@ -521,19 +579,18 @@
         transform:scale(0); animation:ripple-out 0.6s ease-out forwards;
         pointer-events:none;
       `;
-      btn.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 650);
-    });
+          btn.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 650);
+        });
 
-    // Ripple animation
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = `
+      // Ripple animation
+      const styleSheet = document.createElement("style");
+      styleSheet.textContent = `
       @keyframes ripple-out {
         to { transform: scale(2.5); opacity: 0; }
       }
     `;
-    document.head.appendChild(styleSheet);
-  </script>
-
-</body>
+      document.head.appendChild(styleSheet);
+    </script>
+  </body>
 </html>
