@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immersive Hero Section</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+    }
+  }
+  </script>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ═══════ Three.js Canvas ═══════ -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- ═══════ Ambient Particles ═══════ -->
+  <div id="particles"></div>
+
+  <!-- ═══════ UI Overlay ═══════ -->
+  <div class="overlay">
+
+    <!-- ─── Navbar ─── -->
+    <nav class="navbar">
+      <div class="logo">CHROMA</div>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#docs">Docs</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- ─── Hero Center ─── -->
+    <div class="hero-center">
+      <h1 class="headline" data-text="BUILD THE FUTURE">BUILD THE FUTURE</h1>
+      <p class="sub-headline">
+        다음 세대의 크리에이티브 경험을 시작하세요. 하이퍼-글로시 크롬 메탈과 유리 같은 UI가 만나는 몰입형 웹의 세계로.
+      </p>
+
+      <!-- Feature Glass Cards -->
+      <div class="feature-cards">
+        <div class="feature-card">
+          <span class="icon">&#9889;</span>
+          <span class="label">Features</span>
+          <span class="desc">강력한 기능 탐색</span>
+        </div>
+        <div class="feature-card">
+          <span class="icon">&#128176;</span>
+          <span class="label">Pricing</span>
+          <span class="desc">합리적인 가격</span>
+        </div>
+        <div class="feature-card">
+          <span class="icon">&#128640;</span>
+          <span class="label">Deploy</span>
+          <span class="desc">원클릭 배포</span>
+        </div>
+        <div class="feature-card">
+          <span class="icon">&#128274;</span>
+          <span class="label">Security</span>
+          <span class="desc">엔터프라이즈 보안</span>
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <button class="cta-btn" id="cta-btn">
+        Get Started
+        <span class="arrow">&rarr;</span>
+      </button>
+    </div>
+
+    <!-- ─── Bottom Fade ─── -->
+    <div class="bottom-fade"></div>
+  </div>
+
+  <!-- ═══════ Three.js 3D Scene (ES Module) ═══════ -->
+  <script type="module" src="three-scene.js"></script>
+
+  <!-- ═══════ App Logic (Particles + CTA Ripple) ═══════ -->
+  <script src="app.js"></script>
+
+</body>
+</html>
